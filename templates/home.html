@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SCP Foundation</title>
+    <style>
+        body {
+            font-family: 'arial';
+            background-color: #f0f0f0;
+            color: #333;
+            margin: 0;
+        }
+        h1 {
+            font-family: 'serif';
+            color: white;
+            text-align: center;
+        }
+
+        header {
+            background-color: #000;
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        main {
+            max-width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        form {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        form label {
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        form input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+        }
+
+        form button {
+            background-color: #000;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        h2 {
+            color: #000;
+            text-align: center;
+        }
+
+        footer {
+            width: 100%;
+            height: 600px;
+            border: none;
+            text-align: center;
+        }
+
+        #character-list {
+            list-style-type: none;
+            padding: 0;
+            text-align: center;
+        }
+
+        #character-list li {
+            display: inline-block;
+            margin: 0 10px;
+            border: 1px solid #ccc;
+            padding: 10px;
+            width: 300px;
+            text-align: left;
+        }
+        .class-type-select {
+            display: inline-block;
+            margin-bottom: 15px; 
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <img src="{{ url_for('static', path='scp_logo.png') }}" alt="SCP Foundation Logo" width="100" height="100">
+        <h1>SCP-Foundation creatures API</h1>
+    </header>
+    <main>
+        <form 
+            id="character-form"
+            onsubmit="addCharacter(event)"
+            action="http://127.0.0.1:8000/insert"
+            method="POST">
+
+            <label for="name">Name:</label>
+            <input type="text" name="name" required><br>
+            
+            <label for="age">Age:</label>
+            <input type="number" name="age" required><br>
+
+            <label for="class_type">Class:</label>
+            <div class="class-type-container">
+                <select name="class_type" required class="class-type-select">
+                    <option value="Euclid">Euclid</option>
+                    <option value="Keter">Keter</option>
+                    <option value="Safe">Safe</option>
+                </select><br>
+            </div>
+
+            <button type="submit">Create SCP Character</button>
+        </form>
+
+        <h2>SCP Characters</h2>
+            <ul id="character-list"></ul>
+
+            <script>
+                async function addCharacter(event) {
+                    event.preventDefault();
+            
+                    const form = document.getElementById('character-form');
+                    const formData = new FormData(form);
+            
+                    const response = await fetch('/create', {
+                        method: 'POST',
+                        body: formData,
+                    });
+            
+                    if (response.ok) {
+                        const result = await response.json();
+                        //manipular a resposta JSON
+                        console.log(result.message);
+                        form.reset();
+                    } else {
+                        console.error('Erro ao adicionar personagem:', response.statusText);
+                    }
+                }
+
+                const characters = [
+                    { name: "SCP-173", age: 3, class_type: "Euclid" },
+                    { name: "SCP-096", age: 14, class_type: "Keter" },
+                    { name: "SCP-682", age: 320, class_type: "Keter" },
+                ];
+            
+                // função para adicionar personagens à lista
+                function populateCharacterList() {
+                    const characterList = document.getElementById('character-list');
+                    characters.forEach(character => {
+                        const listItem = document.createElement('li');
+                        listItem.innerHTML = `<strong>${character.name}</strong> - Age: ${character.age}, Class: ${character.class_type}`;
+                        characterList.appendChild(listItem);
+                    });
+                }
+                window.onload = populateCharacterList;
+            </script>            
+    </main>
+    <footer>
+        <p><a href="/docs" target="_blank"><h2>FastAPI Documentation</h2></a></p>
+    </footer>
+</body>
+</html>
